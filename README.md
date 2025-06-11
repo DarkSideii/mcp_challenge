@@ -31,8 +31,7 @@ ollama pull <model_name>
 ### 2. Run the Ollama container with full GPU access
 ```bash
 docker pull ollama/ollama
-docker run --gpus all -d -p 11434:11434 --name ollama -v path\to
-your\dir\.ollama:/root/.ollama ollama/ollama
+docker run --gpus all -d -p 11434:11434 --name ollama -v path\to\your\dir\.ollama:/root/.ollama ollama/ollama
 ```
 ### 3. Create a `.env` file
 
