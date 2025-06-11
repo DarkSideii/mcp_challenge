@@ -20,15 +20,17 @@ def call_mcp_uri(uri: str, rpc_id: int = 1) -> str:
 def get_weather_client(city: str, units: str = "metric") -> str:
     return call_mcp_uri(f"mcp://weather/current/{city}/{units}")
 
-def get_forecast_client(city: str, days: int = 3, units: str = "metric") -> str:
+def get_forecast_client(city: str, days: int, units: str = "metric") -> str:
     return call_mcp_uri(f"mcp://weather/forecast/{city}/{days}/{units}")
 
-def get_news_headlines_client(category: str, country: str = None, limit: int = 5) -> str:
-    uri = f"mcp://news/headlines/{category}"
+def get_news_headlines_client(category: str, country: str | None = None,limit: int = 5,) -> str:
+    path = category
     if country:
-        uri += f"/{country}"
-    uri += f"/{limit}"
-    return call_mcp_uri(uri)
+        path += f"/{country}"
+    else:
+        path += "/"
+    path += f"/{limit}"
+    return call_mcp_uri(f"mcp://news/headlines/{path}")
 
 def search_web_client(query: str, num_results: int = 5) -> str:
     return call_mcp_uri(f"mcp://news/search/{query}/{num_results}")

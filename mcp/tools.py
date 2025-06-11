@@ -46,10 +46,17 @@ async def get_weather_client(city: str, units: str = "metric") -> str:
 
 async def get_forecast_client(
     city: str,
-    days: int = 3,
+    days: int,
     units: str = "metric",
 ) -> str:
-    """Fetch a multi-day weather forecast for a city."""
+    """
+    Fetch a multi-day weather forecast for a city using One Call API 3.0.
+    `days` must be between 2 and 8 inclusive.
+    """
+    # --- validate days ---
+    if days < 2 or days > 8:
+        return "Error: `days` parameter must be between 2 and 8."
+
     async with httpx.AsyncClient() as client:
         # Geocode city to coordinates
         resp = await client.get(
@@ -62,55 +69,51 @@ async def get_forecast_client(
             return f"City '{city}' not found"
         lat, lon = data[0]["lat"], data[0]["lon"]
 
-        # Get forecast data (every 3-hour step; 8 steps per day)
+        # One Call 3.0: daily forecasts (up to 8 days)
         resp = await client.get(
-            "https://api.openweathermap.org/data/2.5/forecast",
+            "https://api.openweathermap.org/data/3.0/onecall",
             params={
                 "lat": lat,
                 "lon": lon,
                 "units": units,
-                "cnt": days * 8,
+                "exclude": "current,minutely,hourly,alerts",
                 "appid": OPENWEATHER_KEY,
             },
         )
         resp.raise_for_status()
-        forecast = resp.json()
+        o = resp.json()
 
-    # Decide on the unit symbol
+    # Format the next N days out of `daily`
     symbol = "C" if units == "metric" else "F"
-
     lines = []
-    for i in range(days):
-        entry = forecast["list"][i * 8]             # pick the same time each day
+    for entry in o.get("daily", [])[:days]:
         date = datetime.fromtimestamp(entry["dt"]).strftime("%Y-%m-%d")
         desc = entry["weather"][0]["description"].capitalize()
-        temp = entry["main"]["temp"]                # actual temperature
+        temp = entry["temp"]["day"]
         lines.append(f"{date}: {desc}, {temp}°{symbol}")
-
     return "\n".join(lines)
 
-async def get_news_headlines_client(category: str, country: str | None = None, limit: int = 5,) -> str:
+async def get_news_headlines_client(category: str, country: str | None = None, limit: int = 5) -> str:
     """
-    Return top headlines for a given category and country.
+    Return top headlines for a given category and optional country.
     """
     base = "https://newsapi.org/v2/top-headlines"
-    query_parts = [f"apiKey={NEWS_API_KEY}", f"pageSize={limit}"]
+    params = {
+        "apiKey":   NEWS_API_KEY,
+        "pageSize": limit,
+        "category": category,
+    }
     if country:
-        query_parts.append(f"country={country}")
-    if category:
-        query_parts.append(f"category={category}")
-
-    url = f"{base}?{'&'.join(query_parts)}"
+        params["country"] = country
 
     async with httpx.AsyncClient() as client:
-        resp = await client.get(url)
+        resp = await client.get(base, params=params)
         resp.raise_for_status()
         articles = resp.json().get("articles", [])
 
     if not articles:
         return "No headlines found."
     return "\n".join(f"- {a['title']} ({a['url']})" for a in articles[:limit])
-
 
 async def search_web_client(query: str, num_results: int = 5) -> str:
     """

@@ -2,9 +2,10 @@ import os
 import logging
 from dotenv import load_dotenv
 from langchain_ollama import OllamaLLM
-from langchain.tools import Tool
+from langchain.tools import StructuredTool
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
+from langchain.prompts import MessagesPlaceholder
 
 # Import project‑specific tool clients
 from clients import (
@@ -30,32 +31,41 @@ llm = OllamaLLM(
 )
 
 # Keep the full conversation so the agent remembers what was said
+chat_history = MessagesPlaceholder(variable_name="chat_history")
 memory = ConversationBufferMemory(
     memory_key="chat_history",
-    return_messages=True,
+    return_messages=True
 )
 
 # Register each MCP tool the agent is allowed to call
 tools = [
-    Tool(
+    StructuredTool.from_function(
+        get_weather_client,
         name="get_weather",
-        func=get_weather_client,
-        description="Get current weather for a city. Input: city name.",
+        description="Get current weather for a city.",
+        return_direct=True
     ),
-    Tool(
+    StructuredTool.from_function(
+        get_forecast_client,
         name="get_forecast",
-        func=get_forecast_client,
-        description="Get an N‑day weather forecast. Input: 'city|days'.",
+        description="Get an N-day weather forecast for a city.",
+        return_direct=True
     ),
-    Tool(
+    StructuredTool.from_function(
+        get_news_headlines_client,
         name="get_news_headlines",
-        func=get_news_headlines_client,
-        description="Get top news headlines. Input: optional 'category|country'.",
+        description=(
+            "Retrieve the latest news headlines for one of the following categories: "
+            "business, entertainment, general, health, science, sports, or technology. "
+            "Optionally filter results by country using a two-letter ISO code."
+        ),
+        return_direct=True
     ),
-    Tool(
+    StructuredTool.from_function(
+        search_web_client,
         name="search_web",
-        func=search_web_client,
-        description="Run a web search for the given query.",
+        description="Run a web search for the given query and return the top results.",
+        return_direct=True
     ),
 ]
 
@@ -63,11 +73,17 @@ tools = [
 agent = initialize_agent(
     tools=tools,
     llm=llm,
-    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, #AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
     memory=memory,
     verbose=False,
     handle_parsing_errors=True,
     early_stopping_method="generate",
+    agent_kwargs={
+            # tells the prompt to inject your chat history here:
+            "memory_prompts": [chat_history],
+            # ensure the prompt template knows about this variable:
+            "input_variables": ["input", "agent_scratchpad", "chat_history"],
+        },
 )
 
 

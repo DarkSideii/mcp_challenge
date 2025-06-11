@@ -16,17 +16,17 @@ from tools import (
     search_web_client,
 )
 
-# ——— Logging & App setup ———
+
 logging.basicConfig(level=logging.INFO)
 app = FastAPI(title="MCP Challenge")
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ——— Cache (100 entries, 5-min TTL) ———
+
 cache = TTLCache(maxsize=100, ttl=300)
 
-# ——— JSON-RPC / MCP Models ———
+
 class TextContent(BaseModel):
     type: str
     text: str
@@ -40,11 +40,11 @@ class RPCRequest(BaseModel):
     params: Dict[str, Any]
     id: Optional[int]
 
-# ——— MCP Endpoint (URI‐only) ———
+
 @app.post("/mcp")
 @limiter.limit("50/minute")
 async def mcp(request: Request, rpc: RPCRequest):
-    # 1) Validate JSON-RPC envelope
+    # Validate JSON-RPC envelope
     if rpc.jsonrpc != "2.0" or rpc.method.lower() != "call_tool":
         raise HTTPException(status_code=400, detail="Invalid JSON-RPC call")
 
@@ -53,28 +53,27 @@ async def mcp(request: Request, rpc: RPCRequest):
     if not uri:
         raise HTTPException(status_code=400, detail="Missing 'uri' in params")
 
-    # 2) Parse mcp://<service>/<action>/[…]
+    # Parse mcp://<service>/<action>/[…]
     parsed = urlparse(uri)
     if parsed.scheme.lower() != "mcp":
         raise HTTPException(status_code=400, detail="URI must start with mcp://")
 
-    service = parsed.netloc                # e.g. "weather" or "news"
+    service = parsed.netloc
     parts   = parsed.path.strip("/").split("/")
-    action  = parts[0]                     # "current","forecast","headlines","search"
+    action  = parts[0]
     args    = parts[1:]
 
-    # 3) Caching
+    # Caching
     if uri in cache:
         result_text = cache[uri]
     else:
-        # 4) Dispatch
+        # Dispatch
         if service == "weather" and action == "current":
             result_text = await get_weather_client(args[0])
         elif service == "weather" and action == "forecast":
             result_text = await get_forecast_client(args[0], int(args[1]))
         elif service == "news" and action == "headlines":
-            cat = args[0] if args else None
-            result_text = await get_news_headlines_client(category=cat)
+            result_text = await get_news_headlines_client(args[0], args[1])
         elif service == "news" and action == "search":
             result_text = await search_web_client(args[0])
         else:
@@ -82,7 +81,7 @@ async def mcp(request: Request, rpc: RPCRequest):
 
         cache[uri] = result_text
 
-    # 5) Wrap and return
+    # Wrap and return
     content = [TextContent(type="text", text=result_text)]
     result  = CallToolResult(content=content).dict()
 
