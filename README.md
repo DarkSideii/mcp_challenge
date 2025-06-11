@@ -38,6 +38,7 @@ docker run --gpus all -d -p 11434:11434 --name ollama phi \
 
 <details>
 <summary>📄 Example .env file (click to expand)</summary>
+  
 ```env
 OLLAMA_MODEL_NAME=phi-4
 OLLAMA_API_URL=http://localhost:11434
