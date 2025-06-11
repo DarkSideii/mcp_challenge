@@ -36,7 +36,7 @@ docker run --gpus all -d -p 11434:11434 --name ollama phi \
 ```
 ### 3. Create a `.env` file
 
-``<details>
+<details>
 <summary>📄 Example .env file (click to expand)</summary>
 
 ```env
@@ -45,7 +45,8 @@ OLLAMA_API_URL=http://localhost:11434
 OPENWEATHER_API_KEY=your_api_key
 NEWS_API_KEY=your_api_key
 MCP_SERVER_URL=http://localhost:8000/mcp
-</details> ```
+```
+</details> 
 
 ### 4. Start the MCP JSON-RPC server
 
