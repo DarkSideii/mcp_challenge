@@ -54,5 +54,17 @@ Run this to start the backend API:
 ```bash
 python server.py
 ```
+### 5. Start the CLI agent
+In a separate terminal:
+```bash
+python main.py
+```
+Now you can interact with the agent via natural language:
+<img width="1215" alt="image" src="https://github.com/user-attachments/assets/51925185-12de-4b06-9ebe-225fee757394" />
+<img width="1216" alt="image" src="https://github.com/user-attachments/assets/e69c357b-4722-4674-a374-824ec5290c40" />
+<img width="1220" alt="image" src="https://github.com/user-attachments/assets/09590018-af19-4c87-8b6b-6f06b8991842" />
+
+
+
 
    
