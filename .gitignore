@@ -1,4 +1,11 @@
-.venv
+# Python virtual environment
+.venv/
+
+# Environment variables
 .env
-__pycache__
-.idea
+
+# Compiled Python files
+__pycache__/
+
+# IDE configs
+.idea/
