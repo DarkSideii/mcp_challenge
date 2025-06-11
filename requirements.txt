@@ -1,0 +1,18 @@
+# Core functionality
+fastapi
+uvicorn
+httpx
+python-dotenv
+cachetools
+pydantic
+
+# LangChain + Ollama
+langchain
+langchain-community
+langchain-ollama
+
+# Rate limiting
+slowapi
+
+# For web search via DuckDuckGo
+duckduckgo-search
