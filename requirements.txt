@@ -14,5 +14,8 @@ langchain-ollama
 # Rate limiting
 slowapi
 
-# For web search via DuckDuckGo
+# Web search via DuckDuckGo
 duckduckgo-search
+
+# For structured JSON-RPC requests from the client
+requests
