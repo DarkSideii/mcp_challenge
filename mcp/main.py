@@ -6,7 +6,7 @@ from langchain.tools import StructuredTool
 from langchain.agents import initialize_agent, AgentType
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import MessagesPlaceholder
-
+from langchain.schema import SystemMessage
 # Import project‑specific tool clients
 from clients import (
     get_weather_client,
@@ -42,14 +42,12 @@ tools = [
     StructuredTool.from_function(
         get_weather_client,
         name="get_weather",
-        description="Get current weather for a city.",
-        return_direct=True
+        description="Retrieve the current weather for a specific city",
     ),
     StructuredTool.from_function(
         get_forecast_client,
         name="get_forecast",
         description="Get an N-day weather forecast for a city.",
-        return_direct=True
     ),
     StructuredTool.from_function(
         get_news_headlines_client,
@@ -59,13 +57,11 @@ tools = [
             "business, entertainment, general, health, science, sports, or technology. "
             "Optionally filter results by country using a two-letter (lower case) ISO code."
         ),
-        return_direct=True
     ),
     StructuredTool.from_function(
         search_web_client,
         name="search_web",
         description="Run a web search for the given query and return the top results.",
-        return_direct=True
     ),
 ]
 
@@ -79,6 +75,10 @@ agent = initialize_agent(
     handle_parsing_errors=True,
     early_stopping_method="generate",
     agent_kwargs={
+            "system_message": SystemMessage(
+                        content="You are a helpful assistant. You may call multiple tools if needed before providing an answer if you deem it necessary. "
+                                "Always answer completely and concisely."
+                    ),
             # tells the prompt to inject your chat history here:
             "memory_prompts": [chat_history],
             # ensure the prompt template knows about this variable:
