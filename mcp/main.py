@@ -57,7 +57,7 @@ tools = [
         description=(
             "Retrieve the latest news headlines for one of the following categories: "
             "business, entertainment, general, health, science, sports, or technology. "
-            "Optionally filter results by country using a two-letter ISO code."
+            "Optionally filter results by country using a two-letter (lower case) ISO code."
         ),
         return_direct=True
     ),

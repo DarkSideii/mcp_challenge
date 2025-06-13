@@ -1,11 +1,11 @@
 import os
 import requests
 from dotenv import load_dotenv
-
+import random
 load_dotenv()
 default_url = os.getenv("MCP_SERVER_URL")
 
-def call_mcp_uri(uri: str, rpc_id: int = 1) -> str:
+def call_mcp_uri(uri: str, rpc_id: int = random.randint(1, 2_147_483_647)) -> str:
     payload = {
         "jsonrpc": "2.0",
         "method":  "call_tool",
