@@ -1,11 +1,11 @@
 # MCP Agent code
 
-This project is a modular agent framework that communicates with a local language model (Phi-4 via Ollama) running inside a Docker container.
+This project is a modular agent framework that communicates with a local language model running inside a Docker container.
 It exposes an mcp:// URI-based tool protocol and provides both CLI and HTTP interfaces for interacting with tools like weather lookup, news headlines, and web search — all orchestrated by a LangChain-powered agent.
 
 ## What It Does
 
-The application runs an interactive agent backed by LangChain and a locally hosted **Phi-4 model from Ollama**. It enables users to:
+The application runs an interactive agent backed by LangChain and a locally hosted **model from Ollama**. It enables users to:
 
 - Ask for **current weather** and **multi-day forecasts**
 - Retrieve **top news headlines**
@@ -39,7 +39,7 @@ docker run --gpus all -d -p 11434:11434 --name ollama -v path\to\your\dir\.ollam
 <summary>📄 Example .env file (click to expand)</summary>
   
 ```env
-OLLAMA_MODEL_NAME=phi-4
+OLLAMA_MODEL_NAME=your_model_name
 OLLAMA_API_URL=http://localhost:11434
 OPENWEATHER_API_KEY=your_api_key
 NEWS_API_KEY=your_api_key
