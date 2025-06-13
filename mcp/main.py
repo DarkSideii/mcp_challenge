@@ -53,9 +53,9 @@ tools = [
         get_news_headlines_client,
         name="get_news_headlines",
         description=(
-            "Retrieve the latest news headlines for one of the following categories: "
-            "business, entertainment, general, health, science, sports, or technology. "
-            "Optionally filter results by country using a two-letter (lower case) ISO code."
+            "Use this tool when the user requests a specific news category."
+            "You may include a country code if a country is mentioned."
+            "If the user mentions a city, use the web search tool instead."
         ),
     ),
     StructuredTool.from_function(
